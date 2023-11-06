@@ -5,51 +5,52 @@
 #                                                     +:+ +:+         +:+      #
 #    By: chruhin <chruhin@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2023/10/09 10:11:00 by chruhin           #+#    #+#              #
-#    Updated: 2023/11/02 17:02:23 by chruhin          ###   ########.fr        #
+#    Created: 2023/11/06 19:23:03 by chruhin           #+#    #+#              #
+#    Updated: 2023/11/06 19:23:03 by chruhin          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
-NAME			=		minishell
+NAME				=		minishell
 
-INC				=		-I ./inc/
-DIR_SRC			=		src/
-DIR_OBJ			=		obj/
+# Directories
+SRC_DIR				=		src
+OBJ_DIR				=		obj
+INC_DIR				=		-I ./inc
 
-DIRS			=		main builtins executer expander hash_table linked_list \
-						tokenizer utils_libft utils_shell
-SRCDIRS			=		$(foreach dir,$(DIRS), $(addprefix $(DIR_SRC)/, $(dir)))
-SRC				=		$(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.c))
+# Source files
+DIRS				=		utils main
+SRCDIRS				=		$(foreach dir, $(DIRS), $(addprefix $(SRC_DIR)/, $(dir)))
+SRCS				=		$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
 
-SRCS			=		$(addprefix $(DIR_SRC), $(SRC))
+OBJS				=		$(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
+INCS				=		$(addprefix -I, $(INC_DIR))
 
-OBJ				=		$(SRC:.c=.o)
+# Compiler flags
+CFLAGS				=		-Wall -Wextra -g -Werror
 
-OBJS			=		$(addprefix $(DIR_OBJ), $(OBJ))
+# Cleanup
+RM					=		rm -rf
 
-CFLAGS			=		-Wall -Wextra -Werror -pedantic -MMD -MP
+# Targets
+all:						$(OBJ_DIR) $(NAME)
 
-RM				=		rm -rf
+$(OBJ_DIR):
+							@mkdir -p $(OBJ_DIR)
 
-.PHONY:					all re clean fclean
+$(OBJ_DIR)/%.o:				$(SRC_DIR)/%.c
+							@mkdir -p $(dir $@)
+							$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-all:					lib obj $(NAME)
-
-$(DIR_OBJ)%.o:			$(DIR_SRC)%.c
-						$(CC) $(CFLAGS) -c $< -o $@ $(INC)
-						@echo "Linking" [ $< ]
-
-$(NAME):				$(OBJS) $(LIBFT)
-						$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $@
-						@echo "Compiling" [ $(NAME) ]
+$(NAME): 					$(OBJS)
+							$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
 
 clean:
-						$(RM) $(DIR_OBJ)
-						@echo "Clean [ obj files minishell ]"
+							$(RM) $(OBJ_DIR)
 
-fclean:					clean
-						$(RM) .gch $(NAME)
-						@echo "Clean [ obj files minishell ]"
+fclean: clean
+							$(RM) $(NAME)
 
-re:						fclean all
+re:							fclean all
+
+.PHONY:						all clean fclean re
