@@ -6,7 +6,7 @@
 /*   By: chruhin <chruhin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 12:15:16 by chruhin           #+#    #+#             */
-/*   Updated: 2023/11/06 23:08:44 by chruhin          ###   ########.fr       */
+/*   Updated: 2023/11/08 13:56:12 by chruhin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,25 @@
 # include <signal.h>
 # include <errno.h>
 # include <string.h>
+# include <stdbool.h>
 # include <sys/wait.h>
 # include <sys/stat.h>
 # include <sys/ioctl.h>
+# include <readline/history.h>
 # include <readline/readline.h>
-// # include
+
+# define PROMPT			"\033[1;32mMINISHELL:~$ \033[0;0m"
+
+//typedef enum s_code
+//{
+//	SIG_IGNORE,
+//	SIG_STD,
+//	SIG_HEREDOC,
+//}	t_code;
 
 
-typedef struct		s_data{
+typedef struct	s_data
+{
 	int		argc;
 	char	**argv;
 	char	**envp;
@@ -36,9 +47,8 @@ typedef struct		s_data{
 	char	*str;
 	char	**cmds;
 	int		child;
-}					t_data;
+}	t_data;
 
-void	free_matrix(char **matrix);
 void	set_args(char **argv, char *str, int argc);
 void	child_sig_handler(int sig);
 void	child_sig_handler_bash(int sig);
