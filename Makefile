@@ -19,7 +19,7 @@ OBJ_DIR				=		obj
 INC_DIR				=		-I ./inc
 
 # Source files
-DIRS				=		utils main
+DIRS				=		builtins executer lexer parser utils main
 SRCDIRS				=		$(foreach dir, $(DIRS), $(addprefix $(SRC_DIR)/, $(dir)))
 SRCS				=		$(foreach dir, $(SRCDIRS), $(wildcard $(dir)/*.c))
 
