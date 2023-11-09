@@ -6,7 +6,7 @@
 /*   By: chruhin <chruhin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 12:15:16 by chruhin           #+#    #+#             */
-/*   Updated: 2023/11/08 13:56:12 by chruhin          ###   ########.fr       */
+/*   Updated: 2023/11/09 20:05:06 by chruhin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,22 +52,22 @@ typedef struct	s_data
 void	set_args(char **argv, char *str, int argc);
 void	child_sig_handler(int sig);
 void	child_sig_handler_bash(int sig);
-void	bash_command(t_data *param);
-void	cd_command(t_data *param);
-void	pwd_command(int fd);
-void	exit_command(t_data *param);
+void	bash_cmd(t_data *param);
+void	cd_cmd(t_data *param);
+void	pwd_cmd(int fd);
+void	exit_cmd(t_data *param);
 void	parser(t_data *param);
 void	export_value(t_data *param, int *i);
 void	sort_envp(char **envp, int fd, char c);
-void	rm_char(char **str, int j);
-void	rm_token(char **arg);
-void	command_or_pipe(t_data *param, int j);
+void	remove_char(char **str, int j);
+void	remove_token(char **arg);
+void	cmd_or_pipe(t_data *param, int j);
 char	*get_env(char **envp, char *env);
 char	**copy_env(char **envp, int add);
-char	**export_command(t_data *param, int i);
-char	**unset_command(t_data *param, int i);
+char	**export_cmd(t_data *param, int i);
+char	**unset_cmd(t_data *param, int i);
 char	**copy_args(t_data *param);
-char	**check_command(char *str, t_data *param);
+char	**check_cmd(char *str, t_data *param);
 int		check_builtins(int fd, t_data *param);
 int		check_bin(int fd, t_data *param);
 int		count_args(char *str);
