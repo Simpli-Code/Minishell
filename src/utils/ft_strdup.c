@@ -6,7 +6,7 @@
 /*   By: chruhin <chruhin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/06 17:56:40 by chruhin           #+#    #+#             */
-/*   Updated: 2023/11/06 19:04:46 by chruhin          ###   ########.fr       */
+/*   Updated: 2023/11/09 17:20:49 by chruhin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ char	*ft_strdup(const char *s)
 	size_t	i;
 
 	i = 0;
+	if (!s)
+		return (NULL);
 	len = ft_strlen(s);
 	dupli = ft_calloc(1, sizeof(char) * (len + 1));
 	if (dupli == NULL)

@@ -6,16 +6,13 @@
 /*   By: chruhin <chruhin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/28 20:32:38 by chruhin           #+#    #+#             */
-/*   Updated: 2023/11/08 19:33:11 by chruhin          ###   ########.fr       */
+/*   Updated: 2023/11/09 18:09:29 by chruhin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 __sig_atomic_t	g_state;
-
-
-
 
 /*
 	A very simple Prompt function
@@ -29,17 +26,11 @@ __sig_atomic_t	g_state;
 static void	put_prompt(char *envp[])
 {
 	char	cwd[4097];
+
 	(void)envp;
 	getcwd(cwd, 4096);
 	write(2, PROMPT, 27);
 }
-
-
-
-
-
-
-
 
 /*
 	A more comprehensive Prompt function
@@ -59,15 +50,12 @@ static void	put_prompt(char *envp[])
 	getcwd(cwd, 4096);
 	user = get_env(envp, "USER");
 	hostname = get_env(envp, "HOSTNAME");
-	snprintf(prompt, sizeof(prompt), "\033[1;32m%s@%s\033[0;0m:\033[1;34m%s\033[0;0m$ ", user, hostname, cwd);
+	snprintf(prompt, sizeof(prompt),
+			"\033[1;32m%s@%s\033[0;0m:\033[1;34m%s\033[0;0m$ ", user, hostname,
+			cwd);
 	write(2, prompt, strlen(prompt));
 }
 */
-
-
-
-
-
 
 /*
 	if SIGINT sets the g_var to Ctrl+C meaning 130 to handle "heredoc"
@@ -88,11 +76,6 @@ static void	sig_handler(int sig)
 	}
 }
 
-
-
-
-
-
 /*
 	to handle Ctrl+C signals in a user interface, ensuring that the
 	terminal behaves as expected when the user presses Ctrl+C.
@@ -110,11 +93,6 @@ static void	sig_handler(int sig)
 //		rl_redisplay();
 //	}
 //}
-
-
-
-
-
 
 /*
 	To Initialize and malloc the data structure
@@ -143,10 +121,6 @@ static void	init_param(t_data **data, char **argv, char **envp, int *ret_len)
 	(*data)->child = 0;
 	ret_len[0] = 1;
 }
-
-
-
-
 
 /*
 	If more than one argument return.
@@ -193,37 +167,80 @@ int	main(int argc, char **argv, char **envp)
 }
 
 /*
- it loops thorough each argv, until it finds a cha"<"
+	to create a copy of elements of argv into newly allocated (args)
+
+	it loops thorough each argv, to find the number of elements  until it
+	encounters an element that doesn't start with <.
+	This number is stored in i.
+	allocates memory for a new array of strings args with a size of i + 1
+	plus 1 for a NULL pointer to indicate the end of the array.
+
+	loop thorough each element and duplicate
+	Free previously allocated memory
+	Null-terminate the args array
+	returns the args array,
+	which is a copy of the relevant elements from data->argv.
 */
 char	**copy_args(t_data *data)
 {
 	int		i;
+	int		j;
 	char	**args;
 
 	i = 0;
 	while (data->argv[i] && ft_memcmp(data->argv[i], "<", 2))
 		i++;
 	args = ft_calloc(sizeof(char *), i + 1);
-	i = 0;
-	while (data->argv[i] && ft_memcmp(data->argv[i], "<", 2))
+	if (!args)
+		return (NULL);
+	j = 0;
+	while (j < i)
 	{
-		args[i] = ft_strdup(data->argv[i]);
-		i++;
+		args[j] = ft_strdup(data->argv[j]);
+		if (args[j] == NULL)
+		{
+			//free_args(args, j); SHOULD BE IMPLEMENTED
+			free(args);
+			return (NULL);
+		}
+		j++;
 	}
+	args[i] = NULL;
 	return (args);
 }
 
-static int	ft_strlen_arg(char *str)
+/*
+	calculate the length of a substring within a given string str.
+	The length is determined based on certain characters (<, >, =, |),
+	spaces, and quoted strings.
+
+	if the character at index i in the input string str is one of the special characters:
+	'<', '>', '=', or '|'. If it is, set i to either 1 or 2,
+	depending on whether it's a single '>' or a double '>>'.
+
+	If the character at index i is not one of the special characters,
+		enter the loop.
+	The loop will breaks if it finds a white space or special characters
+	if single or dubble quote increament i value (skip over them)
+	If the loop encounters an '=' character, it increments i by 1.
+	return the final value of i, the length of the substring.
+*/
+static int	determine_token_len(char *str)
 {
 	int	i;
 
 	i = 0;
 	if (str[i] == '<' || str[i] == '>' || str[i] == '=' || str[i] == '|')
-		i = (str[i] == '>' && str[i + 1] == '>') ? 2 : 1;
+	{
+		if (str[i] == '>' && str[i + 1] == '>')
+			i = 2;
+		else
+			i = 1;
+	}
 	else
 	{
-		while (str[i] && !ft_isspace(str[i]) && str[i] != '<' &&
-				str[i] != '>' && str[i] != '=' && str[i] != '|')
+		while (str[i] && !ft_isspace(str[i]) && str[i] != '<' && str[i] != '>'
+			&& str[i] != '=' && str[i] != '|')
 		{
 			if (str[i] == '\'' || str[i] == '"')
 			{
@@ -240,7 +257,16 @@ static int	ft_strlen_arg(char *str)
 	return (i);
 }
 
-int	count_args(char *str)
+/*
+	counting the number of arguments in a given string str
+	loop thorough 'str'
+	skip white spaces
+	the counter 'n' counts the number of arguments
+	advance the string pointer by the length of the current argument
+	skip white spaces again
+	return the total count of arguments 'n'
+*/
+int	count_cmdline_args(char *str)
 {
 	int	n;
 
@@ -250,13 +276,24 @@ int	count_args(char *str)
 	{
 		ft_skip_spaces(&str);
 		n++;
-		str += ft_strlen_arg(str);
+		str += determine_token_len(str);
 		ft_skip_spaces(&str);
 	}
 	return (n);
 }
 
-void	set_args(char **argv, char *str, int argc)
+/*
+	extract and set individual arguments from a given string
+	into an array while also removing certain tokens or processing the string
+	skip white spaces
+	loop until the end of argc
+	calculate the len of each elements
+	duplicate each elements and save it in argv array
+	the remove_token check to '' "" and \ and removes it
+	increament the i value
+	increament the pointer str by the len of that character
+*/
+void	parse_and_assign_args(char **argv, char *str, int argc)
 {
 	int	i;
 	int	len;
@@ -266,34 +303,68 @@ void	set_args(char **argv, char *str, int argc)
 	while (i < argc)
 	{
 		ft_skip_spaces(&str);
-		len = ft_strlen_arg(str);
+		len = determine_token_len(str);
 		argv[i] = ft_strldup(str, len);
-		rm_token(&(argv[i]));
+		remove_token(&(argv[i]));
 		i++;
 		str += len;
 		ft_skip_spaces(&str);
 	}
 }
 
-static int	check_errno(t_data *data, char *str)
+/*
+	check the value of the errno variable and handle specific error conditions
+
+	errno-base.h
+	#define	ENOENT			2	No such file or directory
+	#define	EACCES		13	Permission denied
+
+	if errno is ENOENT or EACCES print error message
+	fd 2 stderr
+	set data->ret either to 127 or 126
+	127 for ENOENT
+	126 for EACCES
+	return (1) to indicate an error
+
+	else if errno is not ENOENT OR EACCES retrun (0)
+*/
+static int	file_access_error(t_data *data, char *str)
 {
 	if (errno == ENOENT || errno == EACCES)
 	{
 		ft_putstrs_fd("bash: ", str, ": ", 2);
 		ft_putstrs_fd(strerror(errno), "\n", 0, 2);
-		data->ret = (errno == ENOENT) ? 127 : 126;
+		if (errno == ENOENT)
+			data->ret = 127;
+		else
+			data->ret = 126;
 		return (1);
 	}
 	return (0);
 }
 
-static void	check_type(t_data *data, char *str, char *path)
+/*
+	to check the type of a file or directory,
+	handle cases where the path is a file or a directory
+
+	If an error is detected, return early
+	else check the path type, if not a dir
+	open the file and parse it's contents
+	free the data struct string
+	read and proccess the file line by line
+	and parsing each line as a command
+	and store the result in the data->cmds
+
+	If the path is indeed a directory, it prints an error message and sets
+	the return code (data->ret) to indicate that the path is a directory.
+*/
+static void	handle_path_type(t_data *data, char *str, char *path)
 {
 	DIR		*dir;
 	int		fd;
 	char	**cmds;
 
-	if (check_errno(data, str))
+	if (file_access_error(data, str))
 		return ;
 	else if (!(dir = opendir(path)))
 	{
@@ -315,11 +386,21 @@ static void	check_type(t_data *data, char *str, char *path)
 	}
 }
 
-static void	set_filename(int len, char **new, char *str)
+/*
+	to modify a path by navigating to a parent directory based on "../"
+	extract a filename from str and then adjust the path accordingly
+
+	*filename;			Extracted filename
+	*parentPath;		Temporary storage for parent directory
+	*modifiedPath;		Modified path result
+
+*/
+static void	set_modified_path(int len, char **new, char *str)
 {
 	int		i;
 	char	*filename;
-	char	*aux;
+	char	*parentPath;
+	char	*modifiedPath;
 
 	i = 0;
 	while (!ft_memcmp(str + i, "../", 3))
@@ -332,66 +413,110 @@ static void	set_filename(int len, char **new, char *str)
 			len--;
 		len--;
 	}
-	aux = ft_strldup(*new, len);
+	parentPath = ft_strldup(*new, len);
 	free(*new);
-	*new = ft_strjoin(aux, "/");
-	free(aux);
-	aux = ft_strjoin(*new, filename);
-	free(*new);
-	*new = aux;
+	modifiedPath = ft_strjoin(parentPath, "/");
+	free(parentPath);
+	parentPath = ft_strjoin(modifiedPath, filename);
+	free(modifiedPath);
 	free(filename);
+	*new = parentPath;
 }
 
+/*
+	modify a path by either replacing it with a new path specified in
+	the str argument or adjusting the current path based on str
+
+	check if str starts with a "/" meaning absolute path
+	if so, it replaces the path with the str.
+	If str doesn't start with a forward slash, meaning it's not relative path
+	it calls a set_modified_path to adjust the current path by combining it with str.
+	to adjusts the newPath, and assigns the modified newPath to *path.
+	and frees the temporary newPath.
+*/
 static void	set_path(char *str, char **path)
 {
 	int		len;
-	char	*new;
+	char	*newpath;
 
-	new = ft_strdup(*path);
+	newpath = ft_strdup(*path);
 	len = ft_strlen(*path);
 	if (!ft_memcmp(str, "/", 1))
 		*path = ft_strdup(str);
 	else
 	{
-		set_filename(len, &new, str);
-		*path = new;
+		set_modified_path(len, &newpath, str);
+		*path = newpath;
 		return ;
 	}
-	free(new);
+	free(newpath);
 }
 
-void	bash_command(t_data *data)
+/*
+	it executes a bash command and manages the processes
+
+	Store the original argv[0] for later restoration
+	Remove leading "./" from the command if it exists
+	Get the current working directory
+	Set the path in the argv[0] if needed
+	Create a child process
+	setup child proccess
+	Execute the command
+	Exit the child process
+	Parent process waits for the child
+	Normalize the return value
+	Free allocated memory
+	Restore the original argv[0]
+*/
+void	exec_bash_cmd_with_fork(t_data *data)
 {
 	char	buff[4097];
 	char	*path;
-	char	*start;
+	char	*argv_zero;
 
-	start = data->argv[0];
-	if (ft_memcmp(data->argv[0], "/", 1))
-		data->argv[0] += (!ft_memcmp(data->argv[0], "./", 2)) ? 2 : 0;
+	argv_zero = data->argv[0];
+	//if (ft_memcmp(data->argv[0], "/", 1))
+	//	data->argv[0] += (!ft_memcmp(data->argv[0], "./", 2)) ? 2 : 0;
+	if (data->argv[0][0] == '.' && data->argv[0][1] == '/')
+		data->argv[0] += 2;
 	path = getcwd(buff, 4096);
 	set_path(data->argv[0], &path);
 	if (!fork())
 	{
 		signal(SIGINT, child_sig_handler_bash);
 		if (execve(path, data->argv, data->envp))
-			check_type(data, start, path);
+			handle_path_type(data, argv_zero, path);
 		exit(data->ret);
 	}
 	else
 		wait(&data->ret);
 	data->ret /= 256;
 	free(path);
-	data->argv[0] = start;
+	data->argv[0] = argv_zero;
 }
 
-static char	**multiple_env(t_data *data, int fd)
+/*
+	It is responsible to processes environment variables
+	Check if the command is "export" and has no arguments (argc == 1 and empty argv[1])
+	It sort the environment variables data->envp and exports data->export by '=' and 0 criteria
+
+	loop thorough each element of argv "i = 1" starting from second argv
+	check_export_error checks if there's an error while proccessing the current argv
+	if error increament 'data->ret'
+
+	else if the command is export (data->argv[0]) start with export value
+	else if the commadn is unset start with unset, to remove an env calling
+	unset_cmd and increament i value
+
+	after proccessing all arguments, if error set data->ret to 1, else to 0
+	and return the updated environment variables
+*/
+static char	**proccess_env(t_data *data, int fd)
 {
 	int	i;
 
 	data->ret = 0;
-	if (!ft_memcmp(data->argv[0], "export", 7) && data->argc == 1 &&
-		!ft_strlen(data->argv[1]))
+	if (!ft_memcmp(data->argv[0], "export", 7) && data->argc == 1 && !ft_strlen(data->argv[1]))
 	{
 		sort_envp(data->envp, fd, '=');
 		sort_envp(data->export, fd, 0);
@@ -406,14 +531,27 @@ static char	**multiple_env(t_data *data, int fd)
 			if (!ft_memcmp(data->argv[0], "export", 7))
 				export_value(data, &i);
 			else if (!ft_memcmp(data->argv[0], "unset", 6))
-				data->envp = unset_command(data, i++);
+				data->envp = unset_cmd(data, i++);
 		}
 	}
 	data->ret = data->ret ? 1 : 0;
 	return (data->envp);
 }
 
-static void	env_command(t_data *data, int fd)
+
+/*
+	To Handle the "env" command. If the command has no additional arguments
+
+	Check if the number of arguments is not equal to 1, if there's more than one arg
+	Print an error message indicating permission denied and set the return value to 126
+
+	If there's only one argument, which is "env," enters a loop to iterate thorough the
+	environment variables
+	inside the loop
+	print each environment variables followed by newline to the specified file descriptor
+
+*/
+static void	env_cmd(t_data *data, int fd)
 {
 	int	i;
 
@@ -428,11 +566,30 @@ static void	env_command(t_data *data, int fd)
 		ft_putstrs_fd(data->envp[i++], "\n", 0, fd);
 }
 
-static void	echo_command(t_data *data, int fd)
+/*
+	it handles the echo command.
+	it check whether to skip the first argument ("-n") and then print
+	the remaining arguments to a specified file descriptor, and adds
+	a space between non-empty arguments
+
+	sets i value either to 1 or 0 depending on if ("-n") is present
+
+	loops thorough each argument starting from actual i value
+	inside the loop prints the current argument
+	checks if it's the last argument and the next argument is not empty
+	if so print a space
+
+	outside the loop it checks if the '-n' option is not present, print a newline character
+
+*/
+static void	echo_cmd(t_data *data, int fd)
 {
 	int	i;
 
-	i = (data->argc > 1 && !ft_memcmp(data->argv[1], "-n", 3)) ? 1 : 0;
+	if (data->argc > 1 && !ft_memcmp(data->argv[1], "-n", 3))
+		i = 1;
+	else
+		i = 0;
 	while (++i < data->argc)
 	{
 		ft_putstr_fd(data->argv[i], fd);
@@ -443,20 +600,39 @@ static void	echo_command(t_data *data, int fd)
 		write(fd, "\n", 1);
 }
 
-static int	check_builts(int fd, t_data *data)
+/*
+	check if the given command is a built-in command, execute the corresponding function.
+	If the command is not recognized as a built-in, return 1 to indicate that it's an external command.
+	handle built-in commands for echoing, printing the current working directory, and changing the directory.
+
+	first check if command is echo
+	if so call the func echo_cmd
+
+	if command is pwd, get the cwd and print it to the specified file descriptor
+
+	if command is cd, duplicate the dir path from argv[1] and store it in path
+	call the cd_cmd func to change the cwd
+	check if path is set and if it's a "-" (indicating switching to previous dir)
+	if so get the cwd and print if to the specified fd
+	free pointer path
+
+*/
+static int	check_builti(int fd, t_data *data)
 {
 	char	*path;
 	char	cwd[4097];
 
-	path = 0;
+	path = NULL;
 	if (!ft_memcmp(data->argv[0], "echo", 5))
-		echo_command(data, fd);
+		echo_cmd(data, fd);
 	else if (!ft_memcmp(data->argv[0], "pwd", 4))
 		ft_putstrs_fd(getcwd(cwd, 4096), "\n", 0, fd);
 	else if (!ft_memcmp(data->argv[0], "cd", 3))
 	{
 		path = ft_strdup(data->argv[1]);
-		cd_command(data);
+		if (!path)
+			return (1);
+		cd_cmd(data);
 		if (path && !ft_strncmp(path, "-", 2))
 			ft_putstrs_fd(getcwd(cwd, 4096), "\n", 0, fd);
 		free(path);
@@ -466,28 +642,61 @@ static int	check_builts(int fd, t_data *data)
 	return (0);
 }
 
+
+/*
+	checks various built-in commands and execute the corresponding functions or return an exit code.
+	checking what builti function returns if false return ret value
+	else if builti returns true, then it checks the argv[0] if it's "env", call the env_cmd func
+	else if the argv[0] starts with "./", "../", or "/", indicating that it's a command to execute
+	a local file. If any of these conditions are true, it calls the exec_bash_cmd_with_fork
+
+	else if argv[0] in data->argv is "export" (the first 7 characters) or "unset" (the first 6 characters).
+	call the proccess_env function and assigns the result to data->envp.
+	else if argv[0] in data->argv is "exit" (the first 5 characters) or "q" (the first 2 characters).
+	call the exit_cmd function.
+	else retrun (127) If none of the above conditions are met, an unkown cmd error
+	and return data->ret
+*/
 int	check_builtins(int fd, t_data *data)
 {
 	data->ret = 0;
-	if (!check_builts(fd, data))
+	if (!check_builti(fd, data))
 		return (data->ret);
 	else if (!ft_memcmp(data->argv[0], "env", 4))
-		env_command(data, fd);
-	else if (!ft_memcmp(data->argv[0], "./", 2) ||
-				!ft_memcmp(data->argv[0], "../", 3) ||
-				!ft_memcmp(data->argv[0], "/", 1))
-		bash_command(data);
-	else if (!ft_memcmp(data->argv[0], "export", 7) ||
-				!ft_memcmp(data->argv[0], "unset", 6))
-		data->envp = multiple_env(data, fd);
-	else if (!ft_memcmp(data->argv[0], "exit", 5) ||
-				!ft_memcmp(data->argv[0], "q", 2))
-		exit_command(data);
+		env_cmd(data, fd);
+	else if (!ft_memcmp(data->argv[0], "./", 2) || !ft_memcmp(data->argv[0], "../", 3) || !ft_memcmp(data->argv[0], "/", 1))
+		exec_bash_cmd_with_fork(data);
+	else if (!ft_memcmp(data->argv[0], "export", 7) || !ft_memcmp(data->argv[0], "unset", 6))
+		data->envp = proccess_env(data, fd);
+	else if (!ft_memcmp(data->argv[0], "exit", 5) || !ft_memcmp(data->argv[0], "q", 2))
+		exit_cmd(data);
 	else
 		return (127);
 	return (data->ret);
 }
 
+/*
+	changes the current directory, updates the environment variables OLDPWD and PWD,
+	and handles error reporting if the directory change operation fails.
+
+	getcwd(oldpwd, 4097)
+	To store the current working directory to the old working directory.
+	if chdir(path) returns 0 -> (change dir to the path) indicating success
+	if changing dir is successful go inside if statement
+	*	argc is set to 4 indicating 4 arguments
+	*	argv is freed by calling free matrix
+	*	new argv is allocated with size 4 char *
+	*	argv[0] is set to "export"
+	*	argv[1] is set to "OLDPWD="
+	*	argv[2] is set to oldpwd
+	*	the envp is updated by calling export_cmd
+	the data->argv array is freed again
+	a new data is allocated with size 4 char *
+	and argvs are set accordingly
+
+	if changing dir fails chdir is non zero
+	an error message to fd 2
+*/
 static void	change_dir(char *path, t_data *data)
 {
 	char	cwd[4097];
@@ -500,29 +709,57 @@ static void	change_dir(char *path, t_data *data)
 		free_matrix(data->argv);
 		data->argv = (char **)ft_calloc(sizeof(char *), 4);
 		data->argv[0] = ft_strdup("export");
+		if (!data->argv[0])
+			return ;
 		data->argv[1] = ft_strdup("OLDPWD=");
+		if (!data->argv[1])
+			return ;
 		data->argv[2] = ft_strdup(oldpwd);
-		data->envp = export_command(data, 1);
+		if (!data->argv[2])
+			return ;
+		data->envp = export_cmd(data, 1);
 		free_matrix(data->argv);
 		data->argv = (char **)ft_calloc(sizeof(char *), 4);
 		data->argv[0] = ft_strdup("export");
+		if (!data->argv[0])
+			return ;
 		data->argv[1] = ft_strdup("PWD=");
+		if (!data->argv[1])
+			return ;
 		data->argv[2] = ft_strdup(getcwd(cwd, 4096));
-		data->envp = export_command(data, 1);
+		if (!data->argv[2])
+			return ;
+		data->envp = export_cmd(data, 1);
 	}
 	else
 		ft_putstrs_fd("bash: cd: ", data->argv[1], ": ", 2);
 }
 
-void	cd_command(t_data *data)
+/*
+	handling the "cd" (change directory) command
+	if argc is <= 2 proceeds with the directory change.
+	If there are more than two arguments, it prints an error message
+	Within the condition for two or fewer arguments:
+	*	check if argv[1] is NULL starts with "--" or "~", or is "-"
+		Depending on these conditions, it sets the path variable to the home directory ("HOME" environment variable),
+		the previous directory ("OLDPWD" environment variable),
+		change_dir function with the calculated path and data as arguments to change the current directory.
+		If errno is greater than 0, it means that an error occurred during the directory change.
+		In this case, it prints an error message using strerror(errno)
+		If there are more than two arguments, it prints an error message indicating
+		that there are too many arguments and sets data->ret to 1 to indicate an error.
+*/
+void	cd_cmd(t_data *data)
 {
 	char	*path;
 
+	path = NULL;
 	errno = 0;
 	if (data->argc <= 2)
 	{
-		if (!data->argv[1] || !ft_strncmp(data->argv[1], "--", 3) ||
-			!ft_strncmp(data->argv[1], "~", 2))
+		//if (data->argc == 1)  UNIMPLEMENTED
+		//	return ;
+		if (!data->argv[1] || !ft_strncmp(data->argv[1], "--", 3) || !ft_strncmp(data->argv[1], "~", 2))
 			path = get_env(data->envp, "HOME");
 		else if (!ft_strncmp(data->argv[1], "-", 2))
 			path = get_env(data->envp, "OLDPWD");
@@ -543,6 +780,9 @@ void	cd_command(t_data *data)
 	errno = 0;
 }
 
+/*
+	
+*/
 static void	set_in(char **argv)
 {
 	int	fd;
@@ -767,7 +1007,7 @@ static void	free_param(t_data *data)
 	free(data);
 }
 
-void	exit_command(t_data *data)
+void	exit_cmd(t_data *data)
 {
 	int	i;
 
@@ -797,7 +1037,7 @@ void	exit_command(t_data *data)
 	}
 }
 
-char	**export_command(t_data *data, int j)
+char	**export_cmd(t_data *data, int j)
 {
 	int		i;
 	char	**cpy;
@@ -844,7 +1084,7 @@ void	export_value(t_data *data, int *i)
 	}
 	else
 	{
-		data->envp = export_command(data, *i);
+		data->envp = export_cmd(data, *i);
 		*i += data->argv[*i + 1] ? 2 : 1;
 	}
 }
@@ -1060,7 +1300,7 @@ static int	check_env(char **str, t_data *data)
 		if ((*str)[i] && (*str)[i] == '\\')
 		{
 			if ((*str)[i + 1] == '$')
-				rm_char(str, i);
+				remove_char(str, i);
 			if ((*str)[i + 1])
 				i++;
 		}
@@ -1100,10 +1340,10 @@ void	parser(t_data *data)
 	while (data->cmds[i])
 	{
 		check_env(&(data->cmds[i]), data);
-		data->argc = count_args(data->cmds[i]);
+		data->argc = count_cmdline_args(data->cmds[i]);
 		data->argv = (char **)ft_calloc(sizeof(char *), (data->argc + 1));
-		set_args(data->argv, data->cmds[i], data->argc);
-		command_or_pipe(data, i);
+		parse_and_assign_args(data->argv, data->cmds[i], data->argc);
+		cmd_or_pipe(data, i);
 		i++;
 		free_matrix(data->argv);
 	}
@@ -1194,7 +1434,7 @@ static int	check_pipe(int *fds, t_data *data)
 	return (sons);
 }
 
-void	command_or_pipe(t_data *data, int j)
+void	cmd_or_pipe(t_data *data, int j)
 {
 	int	fds[4];
 	int	std_out;
@@ -1222,7 +1462,7 @@ void	command_or_pipe(t_data *data, int j)
 	dup2(std_out, 0);
 }
 
-void	rm_char(char **str, int j)
+void	remove_char(char **str, int j)
 {
 	char	*bef;
 	char	*aux;
@@ -1235,19 +1475,41 @@ void	rm_char(char **str, int j)
 	free(bef);
 }
 
-static void	rm_backslash(char **arg, int *i)
+static void	remove_backslash(char **arg, int *i)
 {
 	while ((*arg)[*i])
 	{
 		if ((*arg)[*i] == '\\' && is_token((*arg)[*i + 1]))
-			rm_char(arg, *i);
+			remove_char(arg, *i);
 		else if ((*arg)[*i] == '"')
 			break ;
 		(*i)++;
 	}
 }
 
-void	rm_token(char **arg)
+/*
+	Removes tokens from string 'arg' tokens are "single/double quote, backslash"
+	loops thorough each element of 'arg'
+
+	first checks for single quote and removes it
+	if it's a single quote then it's a single quoted string
+	the remove_char function removes the single quote
+	i value will be increamented by the len of that character
+	call again remove_char to remove the closing single quote
+
+	secode checks for double quote and removes it
+	remove_char function receives the string and the character to be removed
+	remove_backslash, backslash is used as escaped character
+	and remove the closing duoble quote
+
+	else if the current character is a backslash and next
+	character is either a token or a single quote ('),
+	It removes the backslash by calling remove_char.
+
+	If none of the above conditions are met,
+	increment the index i to move to the next character.
+*/
+void	remove_token(char **arg)
 {
 	int	i;
 
@@ -1256,19 +1518,19 @@ void	rm_token(char **arg)
 	{
 		if ((*arg)[i] == '\'')
 		{
-			rm_char(arg, i);
+			remove_char(arg, i);
 			i += ft_strlen_char(*arg + i, '\'');
-			rm_char(arg, i);
+			remove_char(arg, i);
 		}
 		else if ((*arg)[i] == '"')
 		{
-			rm_char(arg, i);
-			rm_backslash(arg, &i);
-			rm_char(arg, i);
+			remove_char(arg, i);
+			remove_backslash(arg, &i);
+			remove_char(arg, i);
 		}
-		else if (((*arg)[i] == '\\') &&
-					(is_token((*arg)[i + 1]) || (*arg)[i + 1] == '\''))
-			rm_char(arg, i++);
+		else if (((*arg)[i] == '\\') && (is_token((*arg)[i + 1]) || (*arg)[i
+					+ 1] == '\''))
+			remove_char(arg, i++);
 		else
 			i++;
 	}
@@ -1295,7 +1557,7 @@ static char	**erase_env(char **envp, int i)
 	return (cpy);
 }
 
-char	**unset_command(t_data *data, int j)
+char	**unset_cmd(t_data *data, int j)
 {
 	int		i;
 	int		len;
