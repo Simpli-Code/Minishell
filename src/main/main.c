@@ -6,7 +6,7 @@
 /*   By: chruhin <chruhin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/28 20:32:38 by chruhin           #+#    #+#             */
-/*   Updated: 2023/11/09 18:09:29 by chruhin          ###   ########.fr       */
+/*   Updated: 2023/11/09 23:08:06 by chruhin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -781,7 +781,21 @@ void	cd_cmd(t_data *data)
 }
 
 /*
-	
+	setting up input redirection
+	to redirect input from a file to the standard input
+	loops thorough argv array to find the redirection symbol "<"
+	or reaches the end of the array. ft_memcmp compares strings,
+	and it looks for a match with "<" (the first 2 characters).
+	If it finds the "<" symbol (i.e., argv[i] is not NULL),
+	it means that input redirection is specified in the command line.
+	open a file specified after the "<" symbol, which is argv[i + 1],
+	for reading (O_RDONLY) with read permissions (0666).
+	if fd < 0 print error msg and return
+	else if the file is opended redirect the input
+	dup2 to duplicate the fd (opened file) into fd 0
+	which is the stdin, to redirect the standard input to the file
+	and close the fd
+
 */
 static void	set_in(char **argv)
 {
@@ -804,6 +818,18 @@ static void	set_in(char **argv)
 	}
 }
 
+/*
+	execute external binaries that is located at a specified path,
+	handle input and output redirection,
+	and manage error conditions, including permission issues.
+	uses fork-exec-wait to run the external program in a separate
+	child process, and provides an exit status based on the success
+	or failure of the execution
+
+	make a copy of command list
+	handle SIGINT and handle keyboard interrupts in the child proccess
+	
+*/
 static void	exec_bin(int fd, char *path, t_data *data)
 {
 	char	**args;
