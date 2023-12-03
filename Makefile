@@ -30,7 +30,7 @@ OBJS				=		$(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 INCS				=		$(addprefix -I, $(INC_DIR))
 
 # Compiler flags
-CFLAGS				=		-Wall -Wextra -g -gdwarf-4 -Werror
+CFLAGS				=		-Wall -Wextra -Wuninitialized -Wno-unused-parameter -gdwarf-4 -g3 -Werror
 
 # Cleanup
 RM					=		rm -rf
@@ -41,11 +41,12 @@ all:						$(OBJ_DIR) $(NAME)
 # Create a Dir for obj
 $(OBJ_DIR):
 							@mkdir -p $(OBJ_DIR)
+# Compiling obj
 $(OBJ_DIR)/%.o:				$(SRC_DIR)/%.c
 							@mkdir -p $(dir $@)
 							$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-# Compiling
+# Compiling exec
 $(NAME): 					$(OBJS)
 							$(CC) $(CFLAGS) -o $(NAME) $(OBJS) -lreadline
 

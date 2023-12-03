@@ -6,7 +6,7 @@
 /*   By: chruhin <chruhin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/04 17:16:48 by chruhin           #+#    #+#             */
-/*   Updated: 2023/11/06 19:05:03 by chruhin          ###   ########.fr       */
+/*   Updated: 2023/11/28 09:17:39 by chruhin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,8 @@ size_t	ft_strlen(const char *s)
 	size_t	i;
 
 	i = 0;
-	if (!s)
-		return (0);
+	//if (!s)
+	//	return (0);
 	while (s[i])
 	{
 		i++;
