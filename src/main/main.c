@@ -14,13 +14,11 @@
 
 __sig_atomic_t	g_var;
 
-
 /*
 	If more than one argument return
 	parameters:
 
 	data;		a pointer to data struct
-	argv_zero;	first argument of argv
 */
 int	main(int argc, char **argv, char **envp)
 {
