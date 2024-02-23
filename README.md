@@ -1,2 +1,2 @@
 # Minishell
-A mini version of bash shell
+A mini version of bash
