@@ -6,7 +6,7 @@
 /*   By: chruhin <chruhin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 22:25:34 by chruhin           #+#    #+#             */
-/*   Updated: 2024/02/06 15:12:49 by chruhin          ###   ########.fr       */
+/*   Updated: 2024/02/06 15:09:36 by chruhin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 # include <sys/types.h>
 
 extern int	g_state;
+# define GRN			"\001\033[1;92m\002"
+# define RST 			"\001\033[0m\002"
 # define TMP_FILE		"/tmp/heredoc.tmp"
 # define PMT			"MINISHELL:~$ "
 # define PMT1			"bash:  "
