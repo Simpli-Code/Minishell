@@ -18,8 +18,8 @@ Instructions
  # 📑 Index
 @root
 
- 📁 inc: contains the program's headers. \\
- 📁 src: contains the source code of the program. \\
- Makefile - contains instructions for compiling the program and testing it.
+ 📁 inc: contains the program's headers. \n
+ 📁 src: contains the source code of the program. \n
+ Makefile - contains instructions for compiling the program and testing it. \n
 
 Note: program covers only mandatory requirements of the project's subject.
