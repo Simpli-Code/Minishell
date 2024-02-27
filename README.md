@@ -1,7 +1,7 @@
 # Minishell
 Minishell is a ecole42 team project of two peers to create a mini shell version that resembles the actual bash shell 
 
-🛠️ Usage
+# 🛠️ Usage
 Requirements
 The program is written in C language for Linux distributions and thus needs the clang compiler and some standard C libraries to run.
 
@@ -15,11 +15,11 @@ Instructions
     $ ./minishell
 
 
-  📑 Index
+ # 📑 Index
 @root
 
-📁 incl: contains the program's headers.
-📁 src: contains the source code of the program.
-Makefile - contains instructions for compiling the program and testing it.
+# 📁 inc: contains the program's headers.
+# 📁 src: contains the source code of the program.
+# Makefile - contains instructions for compiling the program and testing it.
 
 Note: program covers only mandatory requirements of the project's subject.
