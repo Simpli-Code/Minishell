@@ -3,7 +3,8 @@ Minishell is a ecole42 team project of two peers to create a mini shell version 
 
 # 🛠️ Usage
 Requirements
-The program is written in C language for Linux distributions and thus needs the clang compiler and some standard C libraries to run.
+
+This program is written in C language for Linux distributions and thus needs the clang compiler and some standard C libraries to run.
 
 Instructions
 1. Compiling the program
