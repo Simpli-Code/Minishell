@@ -8,18 +8,18 @@ The program is written in C language for Linux distributions and thus needs the 
 Instructions
 1. Compiling the program
 
-  $ make
+    $ make
 
 2. Executing the program
 
-  $ ./minishell
+    $ ./minishell
 
 
   📑 Index
 @root
 
 📁 incl: contains the program's headers.
-📁 srcs: contains the source code of the program.
+📁 src: contains the source code of the program.
 Makefile - contains instructions for compiling the program and testing it.
 
 Note: program covers only mandatory requirements of the project's subject.
