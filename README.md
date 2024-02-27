@@ -1,5 +1,5 @@
 # Minishell
-Minishell is a ecole42 team project of two peers to create a mini shell version that resembles the actual bash shell
+Minishell is a ecole42 team project of two peers to create a mini shell version that resembles the actual bash shell. 
 It implements redirections, pipes, environment variable expansions, all the executable commands and as well as some built-in command such as cd, echo, env, exit, export, pwd and unset.
 
 # 🛠️ Usage
