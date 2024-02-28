@@ -13,6 +13,10 @@
 # Program name
 NAME				=		minishell
 
+# color codes
+GRN					=		\001\033[1;92m\002
+RST					=		\001\033[0m\002
+
 # Directories
 SRC_DIR				=		src
 OBJ_DIR				=		obj
@@ -48,6 +52,7 @@ $(OBJ_DIR)/%.o:				$(SRC_DIR)/%.c
 # Compiling exec
 $(NAME): 					$(OBJS)
 							@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) -lreadline
+							@printf "${GRN}"'Compiled successfuly'"${RST}\n"
 
 # Remove object files
 clean:
