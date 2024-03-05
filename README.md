@@ -10,12 +10,15 @@ This program is written in C language for Linux distributions and thus needs the
 Instructions
 1. Compiling the program
 
-    $ make
+```
+$ make
+```
 
 2. Executing the program
 
-    $ ./minishell
-
+```
+$ ./minishell
+```
 
  # 📑 Index
 @root
