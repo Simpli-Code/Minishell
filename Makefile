@@ -13,14 +13,10 @@
 # Program name
 NAME				=		minishell
 
-# color codes
-GRN					=		\001\033[1;92m\002
-RST					=		\001\033[0m\002
-
 # Directories
 SRC_DIR				=		src
 OBJ_DIR				=		obj
-INC_DIR				=		-I ./inc
+INC_DIR				=		inc
 
 # Source files
 DIRS				=		builtins environ executor path redirection utils main
@@ -37,6 +33,9 @@ CFLAGS				=		-Wall -Wextra -Werror
 
 # Cleanup
 RM					=		rm -rf
+
+# No exceptions
+.PHONY:						all clean fclean re
 
 # Targets
 all:						$(OBJ_DIR) $(NAME)
@@ -56,16 +55,18 @@ $(NAME): 					$(OBJS)
 
 # Remove object files
 clean:
-							$(RM) $(OBJ_DIR)
+							@$(RM) $(OBJ_DIR)
+							@printf "${RED}"'Deleted Object files'"${RST}\n"
 
 # Remove obj & exec files
 fclean:						clean
-							$(RM) $(NAME)
+							@$(RM) $(NAME)
+							@printf "${RED}"'and the Executable file'"${RST}\n"
 
 # remove all & recompile
 re:							fclean all
 
-# No exceptions
-.PHONY:						all clean fclean re
-
-# valgrind --suppressions=file.supp --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --show-mismatched-frees=yes --read-var-info=yes --track-fds=yes --trace-children=yes ./minishel
+# color codes
+RED					=		\e[1;31m
+GRN					=		\e[1;32m
+RST					=		\e[0m
