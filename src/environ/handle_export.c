@@ -6,33 +6,12 @@
 /*   By: chruhin <chruhin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/25 20:06:49 by chruhin           #+#    #+#             */
-/*   Updated: 2024/01/31 20:49:24 by chruhin          ###   ########.fr       */
+/*   Updated: 2024/03/28 10:22:21 by chruhin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-/*
-handling the export cmd by updating the env variables based on the arguments
-if the specified variable is not found, creates a copy of the current env
-variables and adds the new variable.
-if the variable is found, it updates the existing variable
-the function returns a pointer to the updated env variables.
-
-iterate through the current env variables to find a match for the
-specified variable (shell->argv[j]). if the specified variable is not found
-in the current env variables: create a copy of the current env
-variables using the ft_cpy_environ function. strjoin to concatenates the
-variable and its value into a single string and
-assigns it to the corresponding position in the copied env variables.
-free the memory if the specified variable is found in the current env variables:
-assign the pointer to the current env variables to cpy.
-free the memory
-
-concatenates the variable and its value into a single string and assigns
-it to the corresponding position in the current env variables.
-return the pointer to the updated env variables.
-*/
 static char	**copy_and_extend_env(t_mini *shell, int size)
 {
 	char	**cpy;

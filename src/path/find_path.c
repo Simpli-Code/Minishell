@@ -6,33 +6,12 @@
 /*   By: chruhin <chruhin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/25 20:13:00 by chruhin           #+#    #+#             */
-/*   Updated: 2024/02/05 09:06:36 by chruhin          ###   ########.fr       */
+/*   Updated: 2024/03/28 10:25:06 by chruhin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-/*
-to get the value of env by looking through the array in envp variables
-the result is a pointer to the value of env variable,
-or 0 if no variable is found.
-
-input env is modified by concatenating it with the equal sign ("=").
-to prepares the string for comparison with the environment variables in envp.
-
-calculate the len of the modified env string.
-loop through the array in envp variables until an env variable is found
-that starts with the modified env string
-the comparison is performed up to the len of the modified env string
-
-if a matching env variable is found (envp[i] is not NULL),
-tmp is assigned a pointer to the value of the env variable,
-excluding the part that matches the specified env.
-if no matching env variable is found, tmp is set to 0.
-
-free the allocated memo for the modified env
-return a pointer to the value of env variable
-*/
 char	*get_env_path(char **envp, char *env)
 {
 	int		i;
@@ -99,29 +78,6 @@ static char	**get_path(t_mini *shell, char *argv_zero)
 to searche for an executable binary in directories specified by the "PATH"
 and return the full path of the first match found. If no match is found,
 it return NULL.
-
-**path_arr	to store each directory path_arr extracted by splitting the "PATH"
-*path	to store the full path  of founded executable.
-get_path will extract the directory path_arr from the "PATH"
-if fail return NULL.
-loop through the directory path_arr
-using opendir to open the current directory in the loop and
-store the directory stream pointer in *dir.
-loop through the directory entries using readdir.
-The loop continues as long as the directory stream is open ((*dir) is not NULL)
-and there are no permission issues (errno != EACCES)
-and there are more directory entries	((*d = readdir(*dir))).
-ft_memcmp compares the current directory entry's name ((*d)->d_name) with the
-target string argv_zero. "char	d_name[256]; Null-terminated filename"
-If there is a match, it means the executable file is found.
-ft_strjoin to concatenate the directory path with a '/' character
-to create the full path of the executable.
-free the memory allocated for the array of directory path_arr.
-return the full path of the found executable
-After the loop, close the directory stream of the last directory.
-free the memory allocated for the array of directory path_arr if
-no match is found. If no executable is found in any of
-the directories, it returns NULL.
 */
 struct dirent	*read_dir(DIR **dir, struct dirent **d)
 {

@@ -6,17 +6,12 @@
 /*   By: chruhin <chruhin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 09:24:57 by chruhin           #+#    #+#             */
-/*   Updated: 2024/02/06 13:28:50 by chruhin          ###   ########.fr       */
+/*   Updated: 2024/03/28 10:22:01 by chruhin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-/*
-This function is responsible for printing an error msg
-if after the environment variables there is no closing
-braces
-*/
 int	is_open_braces(char **str)
 {
 	char	*ptr;
@@ -30,10 +25,6 @@ int	is_open_braces(char **str)
 	return (SUCCESS);
 }
 
-/*
-This function is responsible for calculating the length
-of the environment variables if the env is in braces
-*/
 int	helper_braces(t_mini *shell, char **str, int *i, int len)
 {
 	len = ft_strlen_char(*str + *i + 1, ':');
@@ -44,11 +35,6 @@ int	helper_braces(t_mini *shell, char **str, int *i, int len)
 	return (len);
 }
 
-/*
-This function responsible for checking if the environment variables
-enclosed in braces and if inside the braces there's no spaces
-if inside the braces there's spaces it prints an error msg
-*/
 int	check_braces(t_mini *shell, char **str, int *i, int j)
 {
 	int	len;
@@ -74,10 +60,6 @@ int	check_braces(t_mini *shell, char **str, int *i, int j)
 	return (helper_braces(shell, str, i, len));
 }
 
-/*
-This function is responsible for duplicating the environment variables
-from the given index
-*/
 char	*dup_cmd(char **str, int *i)
 {
 	char	*cmd;

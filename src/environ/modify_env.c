@@ -6,16 +6,12 @@
 /*   By: chruhin <chruhin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/25 20:20:42 by chruhin           #+#    #+#             */
-/*   Updated: 2024/02/06 13:54:18 by chruhin          ###   ########.fr       */
+/*   Updated: 2024/03/28 10:22:48 by chruhin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-/*
-This function is responsible for checking if after the $ symbol there's a
-? question mark. if so it sets the exit status
-*/
 static void	assign_ret_value(t_mini *shell, char **value, char **cur_env)
 {
 	if (ft_memcmp(*value, "?", 2) == 0)
@@ -24,11 +20,6 @@ static void	assign_ret_value(t_mini *shell, char **value, char **cur_env)
 		*cur_env = NULL;
 }
 
-/*
-This function is responsible for finding the environment variables
-if the environment variable does not exist it write a new line
-else duplictes the value
-*/
 static int	extract_value(t_mini *shell, char **cur_env, char **value)
 {
 	if (*cur_env == NULL)
@@ -50,10 +41,6 @@ static int	extract_value(t_mini *shell, char **cur_env, char **value)
 	return (SUCCESS);
 }
 
-/*
-This function responsible for the converted value of env
-and concatinate it with whatever is after the env value
-*/
 static char	*concat_str(char **str, char **cmd, \
 	char **cur_env, char **substraft)
 {
@@ -76,12 +63,6 @@ static char	*concat_str(char **str, char **cmd, \
 	return (*str);
 }
 
-/*
-This function is entry point for modifying the environment variables
-after finding a $ symbol in the input string.
-it calls various functions to determine the length and value of
-whatever is after the $ symbol
-*/
 char	*helper_modify_env(t_mini *shell, char *tmp, int len, int i)
 {
 	char	*cmd;
